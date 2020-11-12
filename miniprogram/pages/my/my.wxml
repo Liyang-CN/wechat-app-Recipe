@@ -1,0 +1,170 @@
+<view>
+  <!-- 顶部用户信息 -->
+  <view class="header">
+    <!-- 登录页面 -->
+    <view class="login" wx:if="{{isLogin}}">
+      <image src="{{userInfo.avatarUrl}}" bindtap="toClassify"></image>
+      <view class="name">
+        {{userInfo.nickName}}
+      </view>
+    </view>
+    <!-- 未登录页面 -->
+    <view class="no-login" wx:else>
+      <image src="../../static/my/logo1.jpg"></image>
+      <button size="mini" plain open-type="getUserInfo" bindgetuserinfo="wxlogin">登录</button>
+    </view>
+
+  </view>
+
+  <!-- 导航栏 -->
+  <view class="menu">
+    <view class="{{selectIndex==0?'active':''}}" bindtap="changeMenu" data-index="0">菜单</view>
+    <view class="{{selectIndex==1?'active':''}}" bindtap="changeMenu" data-index="1">分类</view>
+    <view class="{{selectIndex==2?'active':''}}" bindtap="changeMenu" data-index="2">关注</view>
+  </view>
+
+  <!-- 内容显示 -->
+  <!-- 未登录时 -->
+  <view class="body-nologin" wx:if="{{ !isLogin }}">
+    <view class="content-body-nologin">
+      <image src="../../static/my/nologin.jpg"></image>
+      <view>可以先去登录哦</view>
+    </view>
+  </view>
+  <!-- 登录之后 -->
+  <view wx:else>
+    <!-- 菜单列表 -->
+    <view hidden="{{selectIndex!=0?true:false}}">
+      <!-- 菜单列表 -->
+      <view>
+        <!-- 没有东西 -->
+        <view wx:if="{{ !true }}" class="no-pbmenu">
+          <image src="../../static/my/img01.jpg"></image>
+          <view>您还没发布过菜单哦</view>
+        </view>
+        <!-- 有东西 -->
+        <view class="hot-recipe-list" wx:else>
+          <block wx:for="{{ myRecipe }}">
+            <view class="hot-recipe-list-item" bindlongpress="_delStyle" data-index="{{ index }}"
+            bindtap="toDetail" data-id="{{item._id}}" data-name="{{item.recipeName}}"
+            >
+              <!-- 图片 -->
+              <image src="{{ item.fileIdArray[0] }}"></image>
+              <!-- 名字 -->
+              <view class="hot-recipe-list-item-title">{{ item.recipeName }}</view>
+              <!-- 发布人及浏览次数 -->
+              <view class="hot-recipe-list-item-info">
+                <view class="left">
+                  <image src="{{userInfo.avatarUrl}}"></image>
+                  <text>{{userInfo.nickName}}</text>
+                </view>
+                <view class="right">
+                  <image src="../../imgs/airs.png"></image>
+                  <text>{{item.visitor}}</text>
+                </view>
+              </view>
+            </view>
+
+          </block>
+        </view>
+      </view>
+      <!-- 加号 -->
+      <view class="jia" bindtap="pbrecipe">
+        <image src="../../static/my/jia.png"></image>
+      </view>
+      <!-- 没数据时  提示 -->
+      <view hidden="{{dataBuffer}}" class="tips">
+        暂时没有发布，快速去发布！
+        <button url="../pbrecipe/pbrecipe">发布菜谱</button>
+      </view>
+      <!-- 上拉提示 -->
+      <view hidden="{{loadBuffer}}" class="tips">
+        亲，我是有底线的！
+      </view>
+    </view>
+    <!-- 分类列表 -->
+    <view class="type-list" hidden="{{selectIndex!=1?true:false}}">
+      <block wx:for="{{ types }}">
+        <view class="list-item">
+          <image src="{{ item.src }}"></image>
+          <text>{{ item.typename }}</text>
+          <image class="onlyimage" src="../../static/my/next.jpg"></image>
+        </view>
+      </block>
+    </view>
+    <!-- 关注列表 -->
+    <view hidden="{{selectIndex!=2?true:false}}">
+      <!-- 没有关注 -->
+      <view class="no-follow" wx:if="{{ lists.length <=0 }}">
+        <image src="../../static/my/nofollow.jpg"></image>
+        <view>您还没关注哦</view>
+      </view>
+      <!-- 关注菜单 -->
+      <view wx:else>
+        <block wx:for="{{ myFollow }}" wx:key="index">
+          <view class="list" bindtap="toDetail" data-id="{{item._id}}" data-name="{{item.recipeName}}">
+            <image src="{{ item.fileIdArray[0] }}" class="recipe-image"></image>
+            <!-- 基本信息 -->
+            <view class="list-info">
+              <view class="list-name">{{ item.recipeName }}</view>
+              <view class="list-info-userinfo">
+                <image src="{{ item.userInfo.avatarUrl }}"></image>
+                <text>{{ item.userInfo.nickName }}</text>
+              </view>
+              <view class="xing">
+                <!-- 星星 -->
+                <!-- 星星     根据用户的关注量设置 item.follow
+               关注数：0        星星数：0
+               关注数：1-5      星星数：1
+               关注数：6-10     星星数：2
+               关注数：11-20    星星数：3
+               关注数：21-50    星星数：4
+               关注数：51以上   星星数：5
+          -->
+                <block wx:if="{{item.follow==0}}">
+                  <image src="../../static/list/xing0.png"></image>
+                </block>
+                <block wx:elif="{{item.follow>=1&&item.follow<=5}}">
+                  <image src="../../static/list/xing1.png"></image>
+                </block>
+                <block wx:elif="{{item.follow>=6&&item.follow<=10}}">
+                  <image src="../../static/list/xing2.png"></image>
+                </block>
+                <block wx:elif="{{item.follow>=11&&item.follow<=20}}">
+                  <image src="../../static/list/xing3.png"></image>
+                </block>
+                <block wx:elif="{{item.follow>=21&&item.follow<=50}}">
+                  <image src="../../static/list/xing4.png"></image>
+                </block>
+                <block wx:else>
+                  <image src="../../static/list/xing5.png"></image>
+                </block>
+              </view>
+              <view class="number">
+                <view>
+                  <image src="../../static/list/followed.png"></image>
+                  <text>{{ item.follow }}</text>
+                </view>
+                <view>
+                  <image src="../../static/list/airs.png"></image>
+                  <text>{{ item.visitor }}</text>
+                </view>
+              </view>
+            </view>
+          </view>
+        </block>
+      </view>
+      <!-- 没有数据提示 -->
+      <view hidden="{{dataBuffer}}" class="tips">
+        暂时没有关注！
+      </view>
+      <!-- 上拉提示 -->
+      <view hidden="{{loadBuffer}}" class="tips">
+        亲，我是有底线的！
+      </view>
+    </view>
+
+  </view>
+
+
+</view>

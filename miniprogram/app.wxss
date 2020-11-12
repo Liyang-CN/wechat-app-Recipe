@@ -1,0 +1,6 @@
+.tips {
+  line-height: 100rpx;
+  text-align: center;
+  font-size: 30rpx;
+  color: #ccc;
+}

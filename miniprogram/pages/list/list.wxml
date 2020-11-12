@@ -1,0 +1,60 @@
+<view>
+  <block wx:for="{{ lists }}">
+    <view class="list" bindtap="toDetail" data-id="{{item._id}}" data-name="{{item.recipeName}}">
+      <image src="{{ item.fileIdArray[0] }}" class="recipe-image"></image>
+      <!-- 基本信息 -->
+      <view class="list-info">
+        <view class="list-name">{{ item.recipeName }}</view>
+        <view class="list-info-userinfo">
+          <image src="{{ item.userInfo.avatarUrl }}"></image>
+          <text>{{item.userInfo.nickName}}</text>
+        </view>
+        <view class="xing">
+          <!-- 星星     根据用户的关注量设置 item.follow
+               关注数：0        星星数：0
+               关注数：1-5      星星数：1
+               关注数：6-10     星星数：2
+               关注数：11-20    星星数：3
+               关注数：21-50    星星数：4
+               关注数：51以上   星星数：5
+          -->
+          <block wx:if="{{item.follow==0}}">
+            <image src="../../static/list/xing0.png"></image>
+          </block>
+          <block wx:elif="{{item.follow>=1&&item.follow<=5}}">
+            <image src="../../static/list/xing1.png"></image>
+          </block>
+          <block wx:elif="{{item.follow>=6&&item.follow<=10}}">
+            <image src="../../static/list/xing2.png"></image>
+          </block>
+          <block wx:elif="{{item.follow>=11&&item.follow<=20}}">
+            <image src="../../static/list/xing3.png"></image>
+          </block>
+          <block wx:elif="{{item.follow>=21&&item.follow<=50}}">
+            <image src="../../static/list/xing4.png"></image>
+          </block>
+          <block wx:else>
+            <image src="../../static/list/xing5.png"></image>
+          </block>
+        </view>
+        <view class="number">
+          <view>
+            <image src="../../static/list/followed.png"></image>
+            <text>{{ item.follow }}</text>
+          </view>
+          <view>
+            <image src="../../static/list/airs.png"></image>
+            <text>{{ item.visitor }}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </block>
+  <!-- 提示到底了 -->
+  <view hidden="{{loadBuffer}}" class="tips">
+    亲，我也是有底线的...
+  </view>
+  <view hidden="{{dataBuffer}}" class="tips">
+    暂时还没有人发布数据...
+  </view>
+</view>

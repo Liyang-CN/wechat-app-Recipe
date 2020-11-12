@@ -1,0 +1,21 @@
+<view>
+  <!-- 顶部图片 -->
+  <view class="type-img">
+    <image src="../../static/type/banner.jpg"></image>
+  </view>
+
+  <!-- 分类列表 -->
+  <view class="type-list">
+    <block wx:for="{{ types }}">
+      <view class="list-item" bindtap="toRecipe" data-id="{{item._id}}" data-name="{{item.classifyName}}">
+        <image src="../../static/type/type01.jpg"></image>
+        <text>{{ item.classifyName }}</text>
+      </view>
+    </block>
+  </view>
+
+  <!-- 提示到底了 -->
+  <view hidden="{{loadBuffer}}" class="tips">
+    亲，我也是有底线的...
+  </view>
+</view>
