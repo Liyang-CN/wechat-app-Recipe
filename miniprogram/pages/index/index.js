@@ -1,6 +1,6 @@
 let api = require('../../utils/api')
 let { TB } = require('../../utils/config')
-
+ 
 Page({
     data: {
         types: [
