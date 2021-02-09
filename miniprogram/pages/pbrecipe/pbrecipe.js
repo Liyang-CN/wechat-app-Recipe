@@ -1,5 +1,7 @@
 // pages/pbrecipe/pbrecipe.js
-let { TB } = require('../../utils/config')
+let {
+  TB
+} = require('../../utils/config')
 let api = require('../../utils/api')
 Page({
 
@@ -10,12 +12,14 @@ Page({
     files: [], // 初始化图片列表
     classifyList: [], // 分类列表
     uploadTempFiles: [], // 初始化上传文件到云端的临时路径
-    isLoading: false  // 是否正在加载
+    isLoading: false // 是否正在加载
   },
   // 得到分类列表
   async getList() {
     let listStatus = await api.findAll(TB.CF)
-    this.setData({ classifyList: listStatus.data })
+    this.setData({
+      classifyList: listStatus.data
+    })
   },
   onLoad() {
     this.setData({
@@ -33,7 +37,9 @@ Page({
     console.log('upload files', files)
     // 文件上传的函数，返回一个promise
     return new Promise((resolve, reject) => {
-      resolve({ urls: files.tempFilePaths })
+      resolve({
+        urls: files.tempFilePaths
+      })
     })
   },
   // 上传失败触发
@@ -53,7 +59,9 @@ Page({
   delete(e) {
     let index = e.detail.index
     this.data.uploadTempFiles.splice(index, 1)
-    this.setData({ uploadTempFiles: this.data.uploadTempFiles })
+    this.setData({
+      uploadTempFiles: this.data.uploadTempFiles
+    })
   },
   // 将文件上传到云端
   async uploadCloud(filesArray) {
@@ -69,27 +77,45 @@ Page({
     // console.log(promiseArray);
     let fileArray = await Promise.all(promiseArray);
     // console.log(fileArray);
-    let fileIdArray = fileArray.map(item => { return item.fileID })
+    let fileIdArray = fileArray.map(item => {
+      return item.fileID
+    })
     return fileIdArray
   },
   // 提交
   async submit(e) {
     // 开启加载开关
-    this.setData({ isLoading: true })
+    this.setData({
+      isLoading: true
+    })
     // 获取表单数据
-    let { recipeName, recipeTypeid, recipesMake } = e.detail.value
+    let {
+      recipeName,
+      recipeTypeid,
+      recipesMake
+    } = e.detail.value
     if (recipeName.trim() == '' || recipeTypeid.trim() == '' || recipesMake.trim() == '') {
       wx.showToast({
         title: '请填写信息',
         icon: 'none'
       })
+      // 关闭加载开关
+      this.setData({
+        isLoading: false
+      })
+      return
     }
     // 上传数据至云端 并得到fileIdArray
     let fileIdArray = await this.uploadCloud(this.data.uploadTempFiles)
     // 合并数据
     let insertData = {
-      recipeName, recipeTypeid, recipesMake,
-      follow: 0, visitor: 0, time: new Date(), fileIdArray
+      recipeName,
+      recipeTypeid,
+      recipesMake,
+      follow: 0,
+      visitor: 0,
+      time: new Date(),
+      fileIdArray
     }
     let addStatus = await api.addOne(TB.RR, insertData)
     // console.log(addStatus);
@@ -111,7 +137,9 @@ Page({
       })
     }
     // 关闭加载开关
-    this.setData({ isLoading: false })
+    this.setData({
+      isLoading: false
+    })
 
   },
 })

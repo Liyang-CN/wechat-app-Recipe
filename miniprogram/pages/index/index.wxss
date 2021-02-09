@@ -51,9 +51,9 @@
     width: 320rpx;
     height: 448rpx;
     background-color: #fff;
-    margin-top: 26rpx;
-    border-top-left-radius: 20rpx;
-    border-top-right-radius: 20rpx;   
+    margin-top: 25rpx;
+    margin-bottom: 25rpx;
+    border: 20rpx; 
 }
 .hot-recipe-list-item image{
     width: 100%;
@@ -70,7 +70,7 @@
 }
 .hot-recipe-list-item-info{
     display: flex;
-    padding: 0px  18rpx;
+    padding: 0px  18rpx 10rpx;
     justify-content: space-between;
     align-items: center;
     color: #bdbdbd;
