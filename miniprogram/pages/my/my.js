@@ -1,7 +1,10 @@
 // pages/my/my.js
 let db = wx.cloud.database();
 // 引入模块
-let { TB, adminOpenid } = require('../../utils/config')
+let {
+  TB,
+  adminOpenid
+} = require('../../utils/config')
 let api = require('../../utils/api')
 Page({
   // 跳转到发布页
@@ -32,7 +35,7 @@ Page({
     if (e.detail.errMsg != "getUserInfo:ok") {
       wx.showToast({
         title: '请先授权',
-        icon:'none'
+        icon: 'none'
       })
       return
     }
@@ -44,16 +47,20 @@ Page({
         let userLogin = await api.yun('myLogin')
         let userOpenid = userLogin.result.openid
         // 根据userOpenid查询数据库
-        let userData = await api.findWhere(TB.U, { userOpenid })
+        let userData = await api.findWhere(TB.U, {
+          _openid: userOpenid
+        })
         if (userData.data.length == 0) {
           // 没查询到 说明是第一次登录 将信息存到数据库里，显示登陆成功
-          let addStatus = await api.addOne(TB.U, { userInfo })
+          let addStatus = await api.addOne(TB.U, {
+            userInfo
+          })
           // 如果返回的addStatus里有_id 说明添加成功了 这里做一下判断
           if (addStatus._id) {
             wx.showToast({
               title: '登陆成功!',
             })
-            this.resetData(userInfo, userOpenid, userOpenid == adminOpenid ? true : false)
+            this.resetData(userInfo, userOpenid, userOpenid == adminOpenid ? true : false);
           } else {
             wx.showToast({
               title: '登录失败!',
@@ -67,6 +74,7 @@ Page({
             icon: 'none'
           })
           this.resetData(userInfo, userOpenid, userOpenid == adminOpenid ? true : false)
+          this.getMyRecipe()
         }
       }
     })
@@ -106,23 +114,54 @@ Page({
       url: '../detail/detail?id=' + id + '&name=' + name,
     })
   },
-  onLoad() { },
+  onLoad() {},
   onShow() {
     // 检查是否登录
     wx.checkSession({
-      success: (res) => {
+      success: async (res) => {
         // 如果是登录状态 就把本地存储的用户信息取出来 
         this.setData({
           userInfo: wx.getStorageSync('userInfo'),
-          isAdmin: wx.getStorageSync('isAdmin')
+          isAdmin: wx.getStorageSync('isAdmin'),
+          myRecipe:[]
         })
         // 获取我的菜谱信息
         this.getMyRecipe()
+        // 防止闪屏的方法行不通
+        // let {
+        //   page,
+        //   pageSize
+        // } = this.data
+        // // 根据openid 获取用户发布的菜谱  
+        // let getStatus = await api.findPage(TB.RR, page, pageSize, {
+        //   _openid: wx.getStorageSync('openid')
+        // }, {
+        //   fileds: 'time',
+        //   sort: 'desc'
+        // })
+        // if (getStatus.data.length == 0 && page == 1) { // 没数据时 显示没数据
+        //   this.setData({
+        //     dataBuffer: false
+        //   });
+        //   return
+        // }
+        // console.log(this.data.myRecipe);
+        // console.log(getStatus.data);
+        // getStatus.data.forEach((item, index) => {
+        //   if (item !== this.data.myRecipe[index]) {
+        //     console.log('数据不同');
+        //     this.setData({
+        //       myRecipe: getStatus.data
+        //     })
+        //   }
+        // })
       },
       fail: err => {
         // 开启登录按钮
-        this.setData({ isLogin: false })
-        // 清楚本地缓存
+        this.setData({
+          isLogin: false
+        })
+        // 清除本地缓存
         wx.removeStorageSync('userInfo')
         wx.removeStorageSync('openid')
         wx.removeStorageSync('isAdmin')
@@ -135,47 +174,81 @@ Page({
     this.data.page = 1;
     this.data.myRecipe = []
     this.data.myFollow = []
-    this.setData({ loadBuffer: true, dataBuffer: true, selectIndex: index })
+    this.setData({
+      loadBuffer: true,
+      dataBuffer: true,
+      selectIndex: index
+    })
     if (index == 0) {
       this.getMyRecipe()
-    } else if (index == 2) {
+    } else if (index == 1) {
       this.getMyFollow()
     }
   },
   async getMyRecipe() {
-    let { page, pageSize } = this.data
+    let {
+      page,
+      pageSize
+    } = this.data
     // 根据openid 获取用户发布的菜谱  
-    let getStatus = await api.findPage(TB.RR, page, pageSize, { _openid: wx.getStorageSync('openid') }, { fileds: 'time', sort: 'desc' })
+    let getStatus = await api.findPage(TB.RR, page, pageSize, {
+      _openid: wx.getStorageSync('openid')
+    }, {
+      fileds: 'time',
+      sort: 'desc'
+    })
     if (getStatus.data.length == 0 && page == 1) { // 没数据时 显示没数据
-      this.setData({ dataBuffer: false }); return
+      this.setData({
+        dataBuffer: false
+      });
+      return
     }
     // 判断是否能够上拉加载
     if (getStatus.data.length < pageSize) {
-      this.setData({ loadBuffer: false })
+      this.setData({
+        loadBuffer: false
+      })
     }
     // 给页面赋值
-    this.setData({ myRecipe: this.data.myRecipe.concat(getStatus.data) })
+    this.setData({
+      myRecipe: this.data.myRecipe.concat(getStatus.data)
+    })
     // 关闭提示
     wx.hideLoading()
   },
   async getMyFollow() {
-    let { page, pageSize } = this.data
+    let {
+      page,
+      pageSize
+    } = this.data
     // 根据用户的openid 在follow表里的_openid字段 查找
-    let getStatus = await api.findPage(TB.F, page, pageSize, { _openid: wx.getStorageSync('openid') }, { fileds: 'time', sort: 'desc' })
+    let getStatus = await api.findPage(TB.F, page, pageSize, {
+      _openid: wx.getStorageSync('openid')
+    }, {
+      fileds: 'time',
+      sort: 'desc'
+    })
     // 判断是否有数据
     if (getStatus.data.length == 0 && page == 1) {
-      this.setData({ dataBuffer: false }); return
+      this.setData({
+        dataBuffer: false
+      });
+      return
     }
     // 判断是否可以上拉加载
     if (getStatus.data.length < pageSize) {
-      this.setData({ loadBuffer: false })
+      this.setData({
+        loadBuffer: false
+      })
     }
     // 根据获取到的菜谱recipeid  从菜谱表里获取菜谱的详情数据   
     let followRecipeDetailArr = await this.getRecipeDetail(getStatus.data)
     // 获取到的关注菜谱列表 追加用户信息
     let myFollowData = await api.addUserInfo(followRecipeDetailArr)
     // 赋值
-    this.setData({ myFollow: this.data.myFollow.concat(myFollowData) })
+    this.setData({
+      myFollow: this.data.myFollow.concat(myFollowData)
+    })
     // 关闭加载
     wx.hideLoading()
 
@@ -183,10 +256,14 @@ Page({
   // 定义  根据一个菜谱id数组 得到菜谱详情 并将详情信息追加到数组里
   async getRecipeDetail(arr) {
     let promiseArray = arr.map(item => {
-      return api.findWhere(TB.RR, { _id: item.recipeid })
+      return api.findWhere(TB.RR, {
+        _id: item.recipeid
+      })
     })
     let newArr = await Promise.all(promiseArray)
-    let followRecipeDetailArr = newArr.map(item => { return item.data[0] })
+    let followRecipeDetailArr = newArr.map(item => {
+      return item.data[0]
+    })
     return followRecipeDetailArr
   },
   onReachBottom() {

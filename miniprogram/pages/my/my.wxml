@@ -19,8 +19,8 @@
   <!-- 导航栏 -->
   <view class="menu">
     <view class="{{selectIndex==0?'active':''}}" bindtap="changeMenu" data-index="0">菜单</view>
-    <view class="{{selectIndex==1?'active':''}}" bindtap="changeMenu" data-index="1">分类</view>
-    <view class="{{selectIndex==2?'active':''}}" bindtap="changeMenu" data-index="2">关注</view>
+    <!-- <view class="{{selectIndex==1?'active':''}}" bindtap="changeMenu" data-index="1">分类</view> -->
+    <view class="{{selectIndex==1?'active':''}}" bindtap="changeMenu" data-index="1">关注</view>
   </view>
 
   <!-- 内容显示 -->
